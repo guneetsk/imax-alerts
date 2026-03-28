@@ -21,6 +21,7 @@ export const subscriptions = pgTable('subscriptions', {
     return randomBytes(32).toString('hex');
   }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastCheckedAt: timestamp('last_checked_at'),
   notifiedAt: timestamp('notified_at'),
 });
 

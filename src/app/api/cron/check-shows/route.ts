@@ -103,6 +103,16 @@ export async function GET(req: NextRequest) {
         }
       }
 
+      // Always stamp last_checked_at so we know this sub was processed
+      try {
+        await db
+          .update(subscriptions)
+          .set({ lastCheckedAt: new Date() })
+          .where(eq(subscriptions.id, sub.id));
+      } catch (err) {
+        console.error(`Failed to update lastCheckedAt for ${sub.id}:`, err);
+      }
+
       if (matchedShows.length === 0) continue;
 
       // 5. Send personalized email
@@ -126,7 +136,8 @@ export async function GET(req: NextRequest) {
           })
           .where(eq(subscriptions.id, sub.id));
       } catch (err) {
-        console.error(`Failed to email ${sub.email}:`, err);
+        console.error(`Failed to email ${sub.id} (${sub.email}):`, err);
+        // Don't deactivate — will retry on next cron cycle
       }
     }
 
