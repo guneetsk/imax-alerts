@@ -775,6 +775,8 @@ export default function Home() {
 
                 {/* Specific date chips — shown when "Pick specific dates" is selected */}
                 {!anyDate && (
+                  <div>
+                  <p className="text-xs text-gray-500 mb-2">Tap all the dates you are interested in</p>
                   <div className="flex flex-wrap gap-2">
                     {dateOptions.map((d) => {
                       const selected = selectedDates.includes(d.code);
@@ -817,6 +819,7 @@ export default function Home() {
                         </button>
                       );
                     })}
+                  </div>
                   </div>
                 )}
               </div>
