@@ -71,7 +71,7 @@ export default function SuccessPage() {
           <div className="flex gap-3">
             <span className="text-lg shrink-0" role="img" aria-label="lightbulb">&#128161;</span>
             <div>
-              <p className="text-sm font-medium text-amber-900">Pro tip</p>
+              <p className="text-sm font-medium text-amber-900">Heads up</p>
               <p className="text-xs text-amber-700 mt-0.5">
                 Check your spam folder and add our email to contacts so you don&apos;t miss the alert when it matters.
               </p>
