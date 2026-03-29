@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { subscriptions } from '@/lib/schema';
 import { verifyOTP } from '@/lib/otp';
+import { sendConfirmationEmail } from '@/lib/email';
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
@@ -30,6 +31,28 @@ export async function POST(req: NextRequest) {
       .update(subscriptions)
       .set({ emailVerified: true, active: true })
       .where(eq(subscriptions.id, result.subscriptionId));
+
+    // Send confirmation email (non-blocking — don't fail the response if email fails)
+    const [sub] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.id, result.subscriptionId))
+      .limit(1);
+
+    if (sub) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://imaxalerts.guneetsk.com';
+      const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${sub.unsubscribeToken}`;
+      const anyDate = sub.targetDates.length >= 14;
+
+      sendConfirmationEmail(
+        sub.email,
+        sub.movieName,
+        sub.venueCodes.length,
+        sub.targetDates.length,
+        anyDate,
+        unsubscribeUrl
+      ).catch((err) => console.error('Confirmation email failed:', err));
+    }
 
     return NextResponse.json({ message: 'Email verified! Alert is now active.' });
   } catch (err) {

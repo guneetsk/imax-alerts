@@ -109,6 +109,42 @@ export async function sendShowAlert(
   });
 }
 
+export async function sendConfirmationEmail(
+  email: string,
+  movieName: string,
+  screenCount: number,
+  dateCount: number,
+  anyDate: boolean,
+  unsubscribeUrl: string
+) {
+  await getTransporter().sendMail({
+    from: FROM,
+    to: email,
+    subject: `Alert active: ${movieName} IMAX`,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);padding:32px 24px;border-radius:16px 16px 0 0">
+          <h2 style="color:#fff;margin:0 0 4px 0;font-size:20px;font-weight:700">IMAX Alerts</h2>
+          <p style="color:rgba(255,255,255,0.9);margin:0;font-size:16px;font-weight:600">Your alert is active!</p>
+        </div>
+        <div style="background:#ffffff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px">
+          <p style="color:#374151;font-size:15px;margin:0 0 20px 0">We are now monitoring BookMyShow for you. Here is what we are tracking:</p>
+          <div style="background:#f3f2ff;border:1px solid #e0e0ff;border-radius:12px;padding:16px;margin:0 0 20px 0">
+            <p style="margin:0 0 8px 0;font-size:14px"><strong style="color:#4f46e5">Movie:</strong> <span style="color:#374151">${escapeHtml(movieName)}</span></p>
+            <p style="margin:0 0 8px 0;font-size:14px"><strong style="color:#4f46e5">Screens:</strong> <span style="color:#374151">${screenCount} IMAX ${screenCount === 1 ? 'screen' : 'screens'}</span></p>
+            <p style="margin:0;font-size:14px"><strong style="color:#4f46e5">Dates:</strong> <span style="color:#374151">${anyDate ? 'Any date in the next 2 weeks' : `${dateCount} specific ${dateCount === 1 ? 'date' : 'dates'}`}</span></p>
+          </div>
+          <p style="color:#374151;font-size:14px;margin:0 0 8px 0"><strong>What happens next?</strong></p>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 20px 0">We check every 15 minutes. The moment bookings open, you will get an email with direct booking links. After that, this alert automatically deactivates — no spam, no ongoing emails.</p>
+          <p style="color:#9ca3af;font-size:12px;margin:0">
+            <a href="${unsubscribeUrl}" style="color:#9ca3af">Cancel this alert</a> &middot; IMAX Alerts by guneetsk.com
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 function formatDate(dateCode: string): string {
   const y = dateCode.slice(0, 4);
   const m = parseInt(dateCode.slice(4, 6), 10) - 1;
