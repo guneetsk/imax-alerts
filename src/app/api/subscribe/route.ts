@@ -7,7 +7,7 @@ import { eq, and, or, sql } from 'drizzle-orm';
 
 const MAX_SUBS_PER_EMAIL = 5;
 const MAX_VENUE_CODES = 20;
-const MAX_TARGET_DATES = 14;
+const MAX_TARGET_DATES = 3;
 
 export async function POST(req: NextRequest) {
   try {

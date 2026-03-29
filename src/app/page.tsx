@@ -52,7 +52,7 @@ const popularCities = [
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 function generateDateOptions() {
-  return Array.from({ length: 14 }, (_, i) => {
+  return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
     const code =
@@ -81,7 +81,6 @@ export default function Home() {
   /* Form state */
   const [step, setStep] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [anyDate, setAnyDate] = useState(true);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
@@ -105,12 +104,7 @@ export default function Home() {
       .catch(() => setMoviesLoading(false));
   }, []);
 
-  /* When "any date" is on, select all 14 dates */
-  useEffect(() => {
-    if (anyDate) {
-      setSelectedDates(dateOptions.map((d) => d.code));
-    }
-  }, [anyDate, dateOptions]);
+  const MAX_DATES = 3;
 
   /* Derived: filtered cities for search */
   const filteredCities = citySearch
@@ -136,7 +130,7 @@ export default function Home() {
   /* ---- Toggles ---- */
   function toggleDate(code: string) {
     setSelectedDates((prev) =>
-      prev.includes(code) ? prev.filter((d) => d !== code) : [...prev, code],
+      prev.includes(code) ? prev.filter((d) => d !== code) : prev.length >= MAX_DATES ? prev : [...prev, code],
     );
   }
 
@@ -698,85 +692,10 @@ export default function Home() {
                   Which dates?
                 </h2>
 
-                {/* Any date option */}
-                <button
-                  type="button"
-                  onClick={() => setAnyDate(true)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border mb-2 transition-all ${
-                    anyDate
-                      ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-left">
-                    <span
-                      className={`text-sm font-medium ${
-                        anyDate ? "text-indigo-700" : "text-gray-900"
-                      }`}
-                    >
-                      Any date in the next 2 weeks
-                    </span>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      Recommended — you will not miss a thing
-                    </p>
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                      anyDate
-                        ? "bg-indigo-600 border-indigo-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {anyDate && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Pick specific dates option */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAnyDate(false);
-                    setSelectedDates([]);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border mb-3 transition-all ${
-                    !anyDate
-                      ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-left">
-                    <span
-                      className={`text-sm font-medium ${
-                        !anyDate ? "text-indigo-700" : "text-gray-900"
-                      }`}
-                    >
-                      Pick specific dates
-                    </span>
-                    {!anyDate && selectedDates.length > 0 && (
-                      <p className="text-xs text-indigo-500 mt-0.5">
-                        {selectedDates.length} {selectedDates.length === 1 ? "date" : "dates"} selected
-                      </p>
-                    )}
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                      !anyDate
-                        ? "bg-indigo-600 border-indigo-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {!anyDate && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
-                    )}
-                  </div>
-                </button>
-
-                {/* Specific date chips — shown when "Pick specific dates" is selected */}
-                {!anyDate && (
-                  <div>
-                  <p className="text-xs text-gray-500 mb-2">Tap all the dates you are interested in</p>
+                <p className="text-xs text-gray-500 mb-2">
+                  Pick up to {MAX_DATES} dates ({selectedDates.length}/{MAX_DATES} selected)
+                </p>
+                <div>
                   <div className="flex flex-wrap gap-2">
                     {dateOptions.map((d) => {
                       const selected = selectedDates.includes(d.code);
@@ -820,8 +739,7 @@ export default function Home() {
                       );
                     })}
                   </div>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           )}
@@ -883,9 +801,7 @@ export default function Home() {
                       Dates
                     </p>
                     <p className="text-sm font-medium text-gray-900">
-                      {anyDate
-                        ? "Any date in the next 2 weeks"
-                        : `${selectedDates.length} ${selectedDates.length === 1 ? "date" : "dates"} selected`}
+                      {`${selectedDates.length} ${selectedDates.length === 1 ? "date" : "dates"} selected`}
                     </p>
                   </div>
                 </div>
