@@ -12,7 +12,7 @@ function getTransporter() {
       port: 587,
       secure: false,
       auth: {
-        user: 'get.guneet@gmail.com',
+        user: 'alerts.guneet@gmail.com',
         pass: process.env.GMAIL_APP_PASSWORD,
       },
     });
@@ -20,7 +20,7 @@ function getTransporter() {
   return _transporter;
 }
 
-const FROM = '"IMAX Alerts" <get.guneet@gmail.com>';
+const FROM = '"IMAX Alerts" <alerts.guneet@gmail.com>';
 
 function escapeHtml(str: string): string {
   return str
