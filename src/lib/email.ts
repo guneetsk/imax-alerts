@@ -34,15 +34,21 @@ export async function sendOTPEmail(email: string, code: string) {
   await getTransporter().sendMail({
     from: FROM,
     to: email,
-    subject: `Your IMAX Alerts verification code: ${code}`,
+    subject: `${code} is your IMAX Alerts code`,
     html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-        <h2 style="color:#e23744;margin-bottom:8px">IMAX Alerts</h2>
-        <p>Your verification code is:</p>
-        <div style="font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:16px;background:#f5f5f5;border-radius:8px;margin:16px 0">
-          ${code}
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);padding:32px 24px;border-radius:16px 16px 0 0">
+          <h2 style="color:#fff;margin:0 0 4px 0;font-size:20px;font-weight:700">IMAX Alerts</h2>
+          <p style="color:rgba(255,255,255,0.8);margin:0;font-size:14px">Verify your email to activate your alert</p>
         </div>
-        <p style="color:#666;font-size:14px">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+        <div style="background:#ffffff;padding:32px 24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px">
+          <p style="color:#374151;font-size:15px;margin:0 0 20px 0">Enter this code to verify your email:</p>
+          <div style="font-size:36px;font-weight:700;letter-spacing:10px;text-align:center;padding:20px;background:#f3f2ff;border:2px solid #e0e0ff;border-radius:12px;margin:0 0 20px 0;color:#4f46e5">
+            ${code}
+          </div>
+          <p style="color:#9ca3af;font-size:13px;margin:0">This code expires in 10 minutes. If you didn't request this, just ignore this email.</p>
+        </div>
+        <p style="text-align:center;color:#9ca3af;font-size:11px;margin:16px 0 0 0">IMAX Alerts by guneetsk.com</p>
       </div>
     `,
   });
@@ -71,28 +77,33 @@ export async function sendShowAlert(
   await getTransporter().sendMail({
     from: FROM,
     to: email,
-    subject: `IMAX Alert: ${movieName} — ${shows.length} show(s) open!`,
+    subject: `Bookings open! ${movieName} IMAX tickets are live`,
     html: `
-      <div style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:24px">
-        <h2 style="color:#e23744">IMAX bookings are open!</h2>
-        <p><strong>${escapeHtml(movieName)}</strong> — ${shows.length} IMAX show(s) found:</p>
-        <table style="border-collapse:collapse;width:100%;font-size:14px">
-          <tr style="background:#f5f5f5">
-            <th style="padding:8px;text-align:left">Date</th>
-            <th style="padding:8px;text-align:left">Time</th>
-            <th style="padding:8px;text-align:left">Screen</th>
-            <th style="padding:8px;text-align:left">Status</th>
-            <th style="padding:8px;text-align:left">Price</th>
-            <th style="padding:8px;text-align:left">Link</th>
-          </tr>
-          ${rows}
-        </table>
-        <p style="margin-top:24px;color:#666;font-size:13px">
-          This alert has been automatically deactivated. You won't receive more emails for this subscription.
-        </p>
-        <p style="color:#999;font-size:12px">
-          <a href="${unsubscribeUrl}" style="color:#999">Unsubscribe</a> | IMAX Alerts by guneetsk.com
-        </p>
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:640px;margin:0 auto">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);padding:32px 24px;border-radius:16px 16px 0 0">
+          <h2 style="color:#fff;margin:0 0 4px 0;font-size:20px;font-weight:700">IMAX Alerts</h2>
+          <p style="color:rgba(255,255,255,0.9);margin:0;font-size:16px;font-weight:600">Bookings are open!</p>
+        </div>
+        <div style="background:#ffffff;padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px">
+          <p style="color:#374151;font-size:15px;margin:0 0 16px 0"><strong>${escapeHtml(movieName)}</strong> — ${shows.length} IMAX show(s) found:</p>
+          <table style="border-collapse:collapse;width:100%;font-size:14px">
+            <tr style="background:#f3f2ff">
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Date</th>
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Time</th>
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Screen</th>
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Status</th>
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Price</th>
+              <th style="padding:10px 8px;text-align:left;color:#4f46e5;font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Link</th>
+            </tr>
+            ${rows}
+          </table>
+          <p style="margin:20px 0 0 0;color:#6b7280;font-size:13px">
+            This alert has been automatically deactivated. No more emails from us for this one.
+          </p>
+          <p style="color:#9ca3af;font-size:12px;margin:12px 0 0 0">
+            <a href="${unsubscribeUrl}" style="color:#9ca3af">Unsubscribe</a> &middot; IMAX Alerts by guneetsk.com
+          </p>
+        </div>
       </div>
     `,
   });
