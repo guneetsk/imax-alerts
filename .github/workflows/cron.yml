@@ -24,7 +24,7 @@ jobs:
           const nodemailer = require('nodemailer');
           const { execFileSync } = require('child_process');
 
-          const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36';
+          const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
           const SCREENS_DATA = require('./src/lib/data/imax-screens.json');
           const screenMap = {};
           for (const s of SCREENS_DATA) screenMap[s.venueCode] = s.regionCode;
@@ -69,7 +69,14 @@ jobs:
               if (!rc) continue;
               const url = `https://in.bookmyshow.com/api/v3/mobile/showtimes/byvenue?venueCode=${vc}&regionCode=${rc}&dateCode=${dc}&appCode=WEB`;
               try {
-                const raw = execFileSync('curl', ['-s', url, '-H', `User-Agent: ${UA}`, '-H', 'Accept: application/json'], { encoding: 'utf8', timeout: 15000 });
+                const raw = execFileSync('curl', ['-s', url,
+                  '-H', `User-Agent: ${UA}`,
+                  '-H', 'Accept: application/json, text/plain, */*',
+                  '-H', 'Accept-Language: en-US,en;q=0.9',
+                  '-H', 'Referer: https://in.bookmyshow.com/',
+                  '-H', 'Origin: https://in.bookmyshow.com',
+                  '--compressed'
+                ], { encoding: 'utf8', timeout: 15000 });
                 const data = JSON.parse(raw);
                 const shows = [];
                 for (const day of (data.ShowDetails || [])) {
