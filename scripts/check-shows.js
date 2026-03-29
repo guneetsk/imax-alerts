@@ -33,6 +33,16 @@ function curlGet(url) {
 async function main() {
   const sql = neon(process.env.DATABASE_URL);
 
+  // 0. Test BMS connectivity with today's date (known working)
+  const today = new Date();
+  const todayCode = today.getFullYear().toString() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  try {
+    const testData = curlGet(`https://in.bookmyshow.com/api/v3/mobile/showtimes/byvenue?venueCode=PAEG&regionCode=NCR&dateCode=${todayCode}&appCode=WEB`);
+    console.log(`BMS connectivity test (PAEG/${todayCode}): OK, ${(testData.ShowDetails || []).length} days`);
+  } catch (e) {
+    console.error(`BMS connectivity test FAILED: ${e.message?.slice(0, 80)}`);
+  }
+
   // 1. Get active subscriptions
   const subs = await sql.query("SELECT * FROM subscriptions WHERE active = true AND email_verified = true");
   if (subs.length === 0) { console.log('No active subscriptions.'); return; }
@@ -85,7 +95,17 @@ async function main() {
         console.log(`  ${pair}: no IMAX shows`);
       }
     } catch (e) {
-      console.warn(`  ${pair}: FAILED - ${e.message?.slice(0, 80)}`);
+      // Log raw response for debugging
+      try {
+        const rawDebug = execFileSync('curl', ['-s', '-w', '\n%{http_code}', url,
+          '-H', `User-Agent: ${UA}`, '-H', 'Accept: application/json'
+        ], { encoding: 'utf8', timeout: 15000 });
+        const lines = rawDebug.split('\n');
+        const httpCode = lines[lines.length - 1];
+        console.warn(`  ${pair}: FAILED (HTTP ${httpCode}) - ${e.message?.slice(0, 60)}`);
+      } catch {
+        console.warn(`  ${pair}: FAILED - ${e.message?.slice(0, 80)}`);
+      }
     }
     // Rate limit: 500ms between requests
     await new Promise(r => setTimeout(r, 500));
