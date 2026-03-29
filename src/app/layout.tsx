@@ -8,9 +8,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "IMAX Alerts — Get notified when bookings open",
+  title: "IMAX Alerts — Know the moment bookings open",
   description:
-    "Get email alerts when IMAX bookings open for your favourite movie at screens across India.",
+    "Get instant email alerts when IMAX bookings open on BookMyShow for your favourite movie and screen.",
 };
 
 export default function RootLayout({
@@ -20,17 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900 font-[family-name:var(--font-geist-sans)]">
-        <header className="border-b bg-white px-4 py-3">
-          <a href="/" className="text-xl font-bold text-red-600">
-            IMAX Alerts
-          </a>
-        </header>
-        <main className="flex-1 flex items-start justify-center px-4 py-8">
+      <body className="min-h-full flex flex-col bg-[#f8f7ff] text-[#1a1a2e] font-[family-name:var(--font-geist-sans)]">
+        <main className="flex-1 flex flex-col">
           {children}
         </main>
-        <footer className="border-t bg-white px-4 py-3 text-center text-sm text-gray-400">
-          Built by guneetsk.com
+        <footer className="px-4 py-4 text-center text-xs text-gray-400">
+          Built by{" "}
+          <a href="https://guneetsk.com" className="underline hover:text-gray-600">
+            guneetsk.com
+          </a>{" "}
+          &middot; Not affiliated with BookMyShow
         </footer>
       </body>
     </html>
