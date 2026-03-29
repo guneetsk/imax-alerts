@@ -29,7 +29,7 @@ export const otpCodes = pgTable('otp_codes', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: text('email').notNull(),
   code: text('code').notNull(),
-  subscriptionId: uuid('subscription_id').notNull(),
+  subscriptionId: text('subscription_id').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   used: boolean('used').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
