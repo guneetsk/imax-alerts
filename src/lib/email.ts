@@ -1,18 +1,26 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import type { BMSShow } from './bms-client';
 
-let _resend: Resend | null = null;
-function getResend() {
-  if (!_resend) {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error('RESEND_API_KEY is not set.');
+let _transporter: nodemailer.Transporter | null = null;
+function getTransporter() {
+  if (!_transporter) {
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      throw new Error('GMAIL_APP_PASSWORD is not set.');
     }
-    _resend = new Resend(process.env.RESEND_API_KEY);
+    _transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'get.guneet@gmail.com',
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
   }
-  return _resend;
+  return _transporter;
 }
 
-const FROM = 'IMAX Alerts <IMAXalerts@guneetsk.com>';
+const FROM = '"IMAX Alerts" <get.guneet@gmail.com>';
 
 function escapeHtml(str: string): string {
   return str
@@ -23,7 +31,7 @@ function escapeHtml(str: string): string {
 }
 
 export async function sendOTPEmail(email: string, code: string) {
-  await getResend().emails.send({
+  await getTransporter().sendMail({
     from: FROM,
     to: email,
     subject: `Your IMAX Alerts verification code: ${code}`,
@@ -60,7 +68,7 @@ export async function sendShowAlert(
     )
     .join('');
 
-  await getResend().emails.send({
+  await getTransporter().sendMail({
     from: FROM,
     to: email,
     subject: `IMAX Alert: ${movieName} — ${shows.length} show(s) open!`,
@@ -91,7 +99,6 @@ export async function sendShowAlert(
 }
 
 function formatDate(dateCode: string): string {
-  // YYYYMMDD → "Mar 30, 2026"
   const y = dateCode.slice(0, 4);
   const m = parseInt(dateCode.slice(4, 6), 10) - 1;
   const d = parseInt(dateCode.slice(6, 8), 10);
