@@ -13,4 +13,4 @@ jobs:
         run: |
           curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "https://imax-alerts.vercel.app/api/cron/check-shows"
+            "https://imaxalerts.guneetsk.com/api/cron/check-shows"
