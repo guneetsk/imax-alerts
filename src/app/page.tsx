@@ -135,7 +135,6 @@ export default function Home() {
 
   /* ---- Toggles ---- */
   function toggleDate(code: string) {
-    setAnyDate(false);
     setSelectedDates((prev) =>
       prev.includes(code) ? prev.filter((d) => d !== code) : [...prev, code],
     );
@@ -699,11 +698,11 @@ export default function Home() {
                   Which dates?
                 </h2>
 
-                {/* Any date toggle */}
+                {/* Any date option */}
                 <button
                   type="button"
-                  onClick={() => setAnyDate(!anyDate)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border mb-3 transition-all ${
+                  onClick={() => setAnyDate(true)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border mb-2 transition-all ${
                     anyDate
                       ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20"
                       : "border-gray-200 bg-white hover:border-gray-300"
@@ -734,7 +733,47 @@ export default function Home() {
                   </div>
                 </button>
 
-                {/* Specific dates */}
+                {/* Pick specific dates option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnyDate(false);
+                    setSelectedDates([]);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border mb-3 transition-all ${
+                    !anyDate
+                      ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-left">
+                    <span
+                      className={`text-sm font-medium ${
+                        !anyDate ? "text-indigo-700" : "text-gray-900"
+                      }`}
+                    >
+                      Pick specific dates
+                    </span>
+                    {!anyDate && selectedDates.length > 0 && (
+                      <p className="text-xs text-indigo-500 mt-0.5">
+                        {selectedDates.length} {selectedDates.length === 1 ? "date" : "dates"} selected
+                      </p>
+                    )}
+                  </div>
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
+                      !anyDate
+                        ? "bg-indigo-600 border-indigo-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {!anyDate && (
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Specific date chips — shown when "Pick specific dates" is selected */}
                 {!anyDate && (
                   <div className="flex flex-wrap gap-2">
                     {dateOptions.map((d) => {

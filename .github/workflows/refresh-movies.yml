@@ -1,0 +1,84 @@
+name: Refresh IMAX Movies Cache
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install @neondatabase/serverless
+      - name: Discover IMAX movies from BMS and update DB
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          node << 'SCRIPT'
+          const { neon } = require('@neondatabase/serverless');
+          const { execFileSync } = require('child_process');
+
+          const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36';
+          const SCREENS = [
+            { venueCode: 'PAEG', regionCode: 'NCR' },
+            { venueCode: 'XLLS', regionCode: 'MUMBAI' },
+            { venueCode: 'PVFM', regionCode: 'BANG' },
+            { venueCode: 'PVHP', regionCode: 'MUMBAI' },
+            { venueCode: 'PVEA', regionCode: 'CHEN' },
+          ];
+
+          async function main() {
+            const sql = neon(process.env.DATABASE_URL);
+            const seen = new Map();
+
+            // Check next 14 days across multiple screens
+            for (const screen of SCREENS) {
+              for (let i = 0; i < 14; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dateCode = d.getFullYear().toString() +
+                  String(d.getMonth() + 1).padStart(2, '0') +
+                  String(d.getDate()).padStart(2, '0');
+
+                const url = `https://in.bookmyshow.com/api/v3/mobile/showtimes/byvenue?venueCode=${screen.venueCode}&regionCode=${screen.regionCode}&dateCode=${dateCode}&appCode=WEB`;
+
+                try {
+                  const raw = execFileSync('curl', ['-s', url, '-H', `User-Agent: ${UA}`, '-H', 'Accept: application/json'], { encoding: 'utf8', timeout: 15000 });
+                  const data = JSON.parse(raw);
+                  for (const day of (data.ShowDetails || [])) {
+                    for (const ev of (day.Event || [])) {
+                      for (const child of (ev.ChildEvents || [])) {
+                        if ((child.EventDimension || '').toUpperCase().includes('IMAX')) {
+                          if (!seen.has(child.EventCode)) {
+                            seen.set(child.EventCode, child.EventName);
+                          }
+                        }
+                      }
+                    }
+                  }
+                } catch (e) {
+                  // Skip failures silently
+                }
+
+                // Small delay to be polite
+                await new Promise(r => setTimeout(r, 300));
+              }
+            }
+
+            console.log(`Discovered ${seen.size} IMAX movies`);
+            for (const [code, name] of seen) {
+              console.log(`  ${code}: ${name}`);
+              await sql.query(
+                "INSERT INTO cached_movies (event_code, event_name, last_seen_at) VALUES ($1, $2, NOW()) ON CONFLICT (event_code) DO UPDATE SET event_name = EXCLUDED.event_name, last_seen_at = NOW()",
+                [code, name]
+              );
+            }
+            console.log('Movie cache updated.');
+          }
+
+          main().catch(e => { console.error(e); process.exit(1); });
+          SCRIPT
