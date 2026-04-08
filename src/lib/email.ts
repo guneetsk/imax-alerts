@@ -145,6 +145,32 @@ export async function sendConfirmationEmail(
   });
 }
 
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'get.guneet@gmail.com';
+
+export async function sendAdminNewSubEmail(
+  userEmail: string,
+  movieName: string,
+  venueCodes: string[],
+  targetDates: string[]
+) {
+  const dates = targetDates.map((d) => formatDate(d)).join(', ');
+  await getTransporter().sendMail({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `New sub: ${movieName} — ${venueCodes.join(', ')}`,
+    html: `
+      <div style="font-family:sans-serif;color:#333;max-width:480px;padding:16px">
+        <p><strong>New active subscription</strong></p>
+        <p>Email: ${escapeHtml(userEmail)}</p>
+        <p>Movie: ${escapeHtml(movieName)}</p>
+        <p>Screens: ${venueCodes.join(', ')}</p>
+        <p>Dates: ${dates}</p>
+        <p style="color:#999;font-size:12px">${new Date().toISOString()}</p>
+      </div>
+    `,
+  });
+}
+
 function formatDate(dateCode: string): string {
   const y = dateCode.slice(0, 4);
   const m = parseInt(dateCode.slice(4, 6), 10) - 1;

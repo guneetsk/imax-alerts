@@ -52,6 +52,11 @@ export async function POST(req: NextRequest) {
         anyDate,
         unsubscribeUrl
       ).catch((err) => console.error('Confirmation email failed:', err));
+
+      // Notify admin of new active subscription
+      const { sendAdminNewSubEmail } = await import('@/lib/email');
+      sendAdminNewSubEmail(sub.email, sub.movieName, sub.venueCodes, sub.targetDates)
+        .catch((err) => console.error('Admin notification failed:', err));
     }
 
     return NextResponse.json({ message: 'Email verified! Alert is now active.' });
